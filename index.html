@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WEB SUBDOMAIN ALHOST</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: black;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      background-color: indigo;
+      padding: 2rem;
+      border-radius: 5px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    input[type='text'], select {
+      padding: 0.5rem;
+      width: 80%;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      font-size: 16px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #error-info {
+      display: none;
+      border: 1px solid #FF4136;
+      background-color: #FFF0F0;
+      color: #FF4136;
+      padding: 15px;
+      margin-top: 1rem;
+      text-align: left;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      word-wrap: break-word;
+    }
+    #success-info {
+      display: none;
+      border: 1px solid #4CAF50;
+      background-color: white;
+      color: #4CAF50;
+      padding: 15px;
+      margin-top: 1rem;
+      text-align: left;
+      font-size: 16px;
+      width: 100%;
+      box-sizing: border-box;
+      word-wrap: break-word;
+    }
+    #success-info pre {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Subdomain Alhost</h1>
+    <form id="subdomain-form">
+      <input type="text" name="subdomain_name" placeholder="Masukan nama subdomain" required><br>
+      <input type="text" name="ipv4_address" placeholder="Masukan alamat ipv4 addres" required><br>
+      <select name="root_domain" required>
+        <option value="" selected disabled>Pilih Domain</option>
+        <option value="panelku-jasteb.my.id">gollox.com'</option>
+        <option value="web-store.icu">birmudah.com</option>
+        <!-- Tambahkan lebih banyak domain jika diperlukan -->
+      </select><br>
+      <button type="Create">Create</button>
+    </form>
+    <div id="error-info"></div>
+    <div id="success-info"></div>
+  </div>
+
+  <script>
+    document.getElementById('subdomain-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const formData = new FormData(event.target);
+      fetch('create_subdomain.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const successMsg = 'Subdomain berhasil dibuat dengan informasi berikut:\n\n' + JSON.stringify(data.record, null, 2);
+          if (data.txt_record_value) {
+            successMsg += '\nGunakan nilai record TXT berikut untuk memverifikasi kepemilikan subdomain di masa depan:\n\n' + data.txt_record_value;
+          }
+          document.getElementById('success-info').innerHTML = '<pre>' + successMsg + '</pre>';
+          document.getElementById('success-info').style.display = 'block';
+          document.getElementById('error-info').style.display = 'none';
+        } else {
+          document.getElementById('error-info').innerText = 'Error: ' + (data.txt_already_exists ? 'Sebuah subdomain dengan nama yang sama sudah ada dan telah diverifikasi.' : 'Gagal membuat subdomain dengan record A.');
+          document.getElementById('error-info').style.display = 'block';
+          document.getElementById('success-info').style.display = 'none';
+        }
+      })
+      .catch(error => {
+        document.getElementById('error-info').innerText = error.message;
+        document.getElementById('error-info').style.display = 'block';
+        document.getElementById('success-info').style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
